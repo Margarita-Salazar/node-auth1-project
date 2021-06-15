@@ -47,12 +47,18 @@ router.post('/register', checkUsernameFree, checkPasswordLength, async (req, res
     "message": "Password must be longer than 3 chars"
   }
  */
-router.post('/login',checkUsernameExists, (req, res)=>{
+router.post('/login',checkUsernameExists, (req, res, next)=>{
   const { username } = req.body;
-
-  res.status(200).json({
-    message: `Welcome ${username}!`
-  })
+  Users.findBy({username})
+    .fist()
+    .then(user=>{
+      req.session.user = user
+      res.status(200).json({
+        message: `Welcome ${user.username}!`
+      })
+      
+    })
+    .catch(next)
 })
 
 /**

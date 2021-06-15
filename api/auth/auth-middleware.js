@@ -22,10 +22,11 @@ function restricted(req, res, next) {
   }
 */
 function checkUsernameFree(req, res, next) {
+  console.log('here')
   const { username } = req.body;
   Users.findBy({username})
     .then(username => {
-      if (username) {
+      if (username.length > 0) {
         next({
           status: 422,
           message: "Username taken",
@@ -49,6 +50,7 @@ function checkUsernameExists(req, res, next) {
   const {username, password} = req.body;
 
   Users.findBy({username})
+    .first()
     .then(user=>{
       if (!user || !bcrypt.compareSync(password, user.password)) {
         next({
@@ -71,15 +73,18 @@ function checkUsernameExists(req, res, next) {
   }
 */
 function checkPasswordLength(req, res, next) {
-  const password = req.body;
+  const { password } = req.body;
 
-  if (password.length > 3) {
+  if (
+    !password ||
+    !password.trim() ||
+    password.length < 3) {
+      next({
+        status: 422,
+        message: "Password must be longer then 3 chars",
+      });
+    } else {
     next();
-  } else {
-    next({
-      status: 422,
-      message: "Password must be longer then 3 chars",
-    });
   }
 }
 

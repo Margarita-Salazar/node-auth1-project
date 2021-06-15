@@ -1,3 +1,6 @@
+const Users = require("../users/users-model");
+
+const bcrypt = require('bcryptjs');
 /*
   If the user does not have a session saved in the server
 
@@ -6,8 +9,8 @@
     "message": "You shall not pass!"
   }
 */
-function restricted() {
-
+function restricted(req, res, next) {
+ 
 }
 
 /*
@@ -18,8 +21,20 @@ function restricted() {
     "message": "Username taken"
   }
 */
-function checkUsernameFree() {
-
+function checkUsernameFree(req, res, next) {
+  const { username } = req.body;
+  Users.findBy({username})
+    .then(username => {
+      if (username) {
+        next({
+          status: 422,
+          message: "Username taken",
+        });
+      } else {
+        next();
+      }
+    })
+    .catch(next);
 }
 
 /*
@@ -30,8 +45,21 @@ function checkUsernameFree() {
     "message": "Invalid credentials"
   }
 */
-function checkUsernameExists() {
+function checkUsernameExists(req, res, next) {
+  const {username, password} = req.body;
 
+  Users.findBy({username})
+    .then(user=>{
+      if (!user || !bcrypt.compareSync(password, user.password)) {
+        next({
+          status: 401, 
+          message: 'Invalid credentials'
+        });
+      }else{
+        next()
+      }
+    })
+    .catch(next)
 }
 
 /*
@@ -42,8 +70,24 @@ function checkUsernameExists() {
     "message": "Password must be longer than 3 chars"
   }
 */
-function checkPasswordLength() {
+function checkPasswordLength(req, res, next) {
+  const password = req.body;
 
+  if (password.length > 3) {
+    next();
+  } else {
+    next({
+      status: 422,
+      message: "Password must be longer then 3 chars",
+    });
+  }
 }
 
 // Don't forget to add these to the `exports` object so they can be required in other modules
+
+module.exports = {
+  restricted,
+  checkUsernameFree,
+  checkUsernameExists,
+  checkPasswordLength,
+};

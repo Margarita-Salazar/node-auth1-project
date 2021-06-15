@@ -50,7 +50,7 @@ router.post('/register', checkUsernameFree, checkPasswordLength, async (req, res
 router.post('/login',checkUsernameExists, (req, res, next)=>{
   const { username } = req.body;
   Users.findBy({username})
-    .fist()
+    .first()
     .then(user=>{
       req.session.user = user
       res.status(200).json({

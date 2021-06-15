@@ -30,7 +30,6 @@ server.use(
       maxAge: 1 * 24 * 60 * 60 * 1000,
       secure: false,
     }, 
-    httpOnly: false,
     resave: false,
     saveUninitialized: true,
   })

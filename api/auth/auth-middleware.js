@@ -22,7 +22,6 @@ function restricted(req, res, next) {
   }
 */
 function checkUsernameFree(req, res, next) {
-  console.log('here')
   const { username } = req.body;
   Users.findBy({username})
     .then(username => {
@@ -53,6 +52,7 @@ function checkUsernameExists(req, res, next) {
     .first()
     .then(user=>{
       if (!user || !bcrypt.compareSync(password, user.password)) {
+        console.log(req.saveUninitialized)
         next({
           status: 401, 
           message: 'Invalid credentials'
